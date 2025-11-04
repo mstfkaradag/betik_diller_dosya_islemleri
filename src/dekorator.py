@@ -15,14 +15,17 @@ def timer(func):
 def required_column(requireds: set[str]):
     def deco(func):
         @wraps(func)
-        def wrapper(rows, *args,**kwargs):
-            if not rows:
+        def wrapper(*args,**kwargs):
+            result = func(*args, **kwargs)
+            if not result:
                 raise ValueError("Boş veri seti")
-            keys= set(rows[0].keys)
-            missing=requireds-keys
-            if missing:
-                raise ValueError("Eksik kolon")
-            return func(rows,*args,**kwargs)
+            
+            if isinstance(result, list) and len(result) > 0:
+                keys= set(result[0].keys())
+                missing=requireds-keys
+                if missing:
+                    raise ValueError(f"Eksik kolon: {missing}")
+            return result
         return wrapper
     return deco
         
